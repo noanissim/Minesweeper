@@ -1,0 +1,44 @@
+body{
+    background-color: #e0acac;
+    text-align: center;
+    font-family:  Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.board-container table{
+    table-layout: fixed;
+    margin: auto;
+    height: 360px;
+    width: 360px;
+    box-shadow: 0 0 10px rgb(110, 107, 107);
+    box-sizing: border-box;
+    /* border-collapse: collapse; */
+    /* empty-cells: hide; */
+}
+
+/* .board-container table td{
+   width: 25%;
+   height: 25%;
+} */
+
+.board-container{
+    margin: 20px;
+}
+
+.hide{
+    visibility: hidden;
+    
+}
+
+.mine{
+    background-color: red;
+}
+
+.number{
+    background-color: rgb(205, 207, 209);
+}
+
+.empty{
+    background-color: white;
+}
+
