@@ -1,11 +1,24 @@
 body{
-    background-color: #e0acac;
+    /* background-color: #f8caca6e; */
+    background-image: url("/img/bgc2.jpg");
     text-align: center;
     font-family:  Tahoma, Geneva, Verdana, sans-serif;
 }
 
 
+
+.neonText {
+    color: #fff;
+    text-shadow:
+    0 0 42px rgb(0, 247, 255),
+    0 0 82px rgb(0, 247, 255),
+    0 0 92px rgb(0, 247, 255),
+    0 0 102px #0fa,
+    0 0 151px #0fa;
+  }
+
 .board-container table{
+    background-color: rgb(182, 129, 160);
     table-layout: fixed;
     margin: auto;
     height: 360px;
@@ -40,5 +53,14 @@ body{
 
 .empty{
     background-color: white;
+}
+
+button{
+    width: 100px;
+    font-size: large;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 10%;
+    color: rgb(48, 48, 48);
 }
 

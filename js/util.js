@@ -60,6 +60,8 @@ function renderBoard(mat, selector) {
     elContainer.innerHTML = strHTML;
 }
 
+
+
 // location such as: cell-i-j
 function renderCell(i, j, value) {
     // Select the elCell and set the value
@@ -69,6 +71,27 @@ function renderCell(i, j, value) {
 
 function changBgcToCell(i, j, color) {
     document.querySelector(`.cell-${i}-${j}`).style.backgroundColor = color
+}
+
+function revealAllBombs(mat) {
+    for (var i = 0; i < mat.length; i++) {
+        for (var j = 0; j < mat[0].length; j++) {
+            var elCell = mat[i][j]; //object
+            if (elCell.isMine) renderCell(i, j, MINE)
+        }
+    }
+}
+
+function checkIfIsEmpty(mat) {
+    var count = 0
+    for (var i = 0; i < mat.length; i++) {
+        for (var j = 0; j < mat[0].length; j++) {
+            var elCell = mat[i][j]; //object
+            if (elCell.isShown) count++
+        }
+    }
+    if (count === mat.length ** 2 - gLevel.MINES) return true
+    return false
 }
 
 //***********************RANDOM NUM/COLOR********************************** */
@@ -96,21 +119,21 @@ function countNeighbors(cellI, cellJ, mat) {
 }
 
 
-function randomBombs(board, size, numOfBombs) {
+function randomBombs(board, size, numOfBombs, i, j) {
     var countBombs = 0
     while (countBombs < numOfBombs) {
         var isValid = false
         while (!isValid) {
             var num1 = getRandomInt(0, size)
             var num2 = getRandomInt(0, size)
-            if (num1 !== num2) {
+            if ((num1 !== num2) && (num1 !== i && num2 !== j) && (num1 !== j && num2 !== i)) {
                 isValid = true
                 board[num1][num2].isMine = true
                 board[num2][num1].isMine = true
                 //the dom in the render
             }
         }
-        countBombs += 2
+        countBombs = countBombs + 2
     }
 }
 
@@ -124,17 +147,17 @@ function expandShown(mat, elCell, cellI, cellJ) {
             if (j < 0 || j >= mat[i].length) continue;
             if (i === cellI && j === cellJ) continue;
             gBoard[i][j].isShown = true
+            gGame.shownCount++
             gClicksTotal++
             renderBoard(gBoard, '.board-container')
         }
     }
+    return gGame.shownCount - 1
 }
 
 
 
-var gStartTime
-var gDiff
-var gCurrRecord
+
 //**********************TIMER************************************** */
 function startTimer() {
 
@@ -156,10 +179,13 @@ function updateTime() {
 }
 
 function stopTimer() {
-    gCurrRecord = gDiff
-    console.log('gCurrRecord', gCurrRecord);
-    document.querySelector('h1').innerText = 'Winner!';
-    document.querySelector('.btn-reset').classList.remove('hidden');
-    bestPlayer(gName, gCurrRecord)
+    if (gDiff < gCurrRecord && gIsVictory) {
+        gCurrRecord = gDiff
+        console.log('the best record!', gCurrRecord);
+
+    }
+    // document.querySelector('h1').innerText = 'Winner!';
+    // document.querySelector('.btn-reset').classList.remove('hidden');
+    // bestPlayer(gName, gCurrRecord)
     clearInterval(gInterval)
 }

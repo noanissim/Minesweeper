@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body onload="init()">
-    <h1>Minesweeper Game!</h1>
+    <h1 class="neonText">Minesweeper Game!</h1>
 
     <div>
         <button class="level1" onclick="changeLevel(this)">Easy</button>
@@ -16,10 +16,12 @@
         <button class="level3" onclick="changeLevel(this)">Extreme</button>
     </div>
 
-    <div> <h2>Timer: <span></span> </h2></div>
+    <div> <h2 >Timer: <span class="timer"></span> </h2></div>
 
-    <h3>Flags left: <span></span></h3>
+    <h3 class="flag">Flags left: <span></span></h3>
+    <h3 class="life">Lives left: <span>❤❤❤</span> </h3>
     <h4 class="hide">victory/you loose</h4>
+    <button class="restart" onclick="restart()">Restart! <span>😁</span></button>
 
     <div class="board-container">
         
