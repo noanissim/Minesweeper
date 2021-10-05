@@ -14,18 +14,45 @@
         <button class="level1" onclick="changeLevel(this)">Easy</button>
         <button class="level2" onclick="changeLevel(this)">Middle</button>
         <button class="level3" onclick="changeLevel(this)">Extreme</button>
+        <button class="manual" onclick="playManual(this)">Play Manually</button>
+        <button class="boom" onclick="sevenBoom(this)">7 BOOM!</button>
+        <!-- <button class="undo" onclick="undoStep()">UNDO</button> -->
+    </div>
+
+    <div class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="time">Timer: <span></span></h2>
+            <h2 class="status">Status: <span></span></h2>
+        </div>
+       
     </div>
 
     <div> <h2 >Timer: <span class="timer"></span> </h2></div>
 
     <h3 class="flag">Flags left: <span></span></h3>
-    <h3 class="life">Lives left: <span>❤❤❤</span> </h3>
+    <h3 class="life" >Lives left: <span>❤️❤️❤️</span> </h3>
+    <h3 class="record">The best record for this level is: <span></span></h3>
+    <div class="hint">
+        <h3 style="display: inline-block;">Hints left</h3>
+        <span class="hint1" onclick="hintClicked(this)">💡</span>
+        <span class="hint2" onclick="hintClicked(this)">💡</span>
+        <span class="hint3" onclick="hintClicked(this)">💡</span>
+    </div>
+
+    <div class="safe">
+        <h3 style="display: inline-block;">Safe Clicks</h3>
+        <span class="safe1" onclick="safeClicked(this)">🆗</span>
+        <span class="safe2" onclick="safeClicked(this)">🆗</span>
+        <span class="safe3" onclick="safeClicked(this)">🆗</span>
+    </div>
+   
     <h4 class="hide">victory/you loose</h4>
     <button class="restart" onclick="restart()">Restart! <span>😁</span></button>
 
-    <div class="board-container">
-        
-    </div>
+    <div class="board-container"></div>
+
+  
 
 
 

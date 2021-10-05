@@ -1,6 +1,7 @@
 body{
     /* background-color: #f8caca6e; */
-    background-image: url("https://noanissim.github.io/Minesweeper/css/style.css/img/bgc2.jpg");
+    background-image: url("https://images.pexels.com/photos/844297/pexels-photo-844297.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260");
+    background-size:cover;
     text-align: center;
     font-family:  Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -11,14 +12,14 @@ body{
     color: #fff;
     text-shadow:
     0 0 42px rgb(0, 247, 255),
-    0 0 82px rgb(0, 247, 255),
-    0 0 92px rgb(0, 247, 255),
-    0 0 102px #0fa,
-    0 0 151px #0fa;
+    0 0 82px rgb(192, 149, 201),
+    0 0 92px rgb(187, 83, 207),
+    0 0 102px rgb(187, 83, 207),
+    0 0 151px rgb(187, 83, 207);
   }
 
 .board-container table{
-    background-color: rgb(182, 129, 160);
+    background-color: #e3b1b2;
     table-layout: fixed;
     margin: auto;
     height: 360px;
@@ -56,11 +57,79 @@ body{
 }
 
 button{
-    width: 100px;
-    font-size: large;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 10%;
-    color: rgb(48, 48, 48);
+   
+  background: #e3b1b2;
+  background-image: -webkit-linear-gradient(top, rgba(205, 141, 211, 0.86), #f5cff8);
+  background-image: -moz-linear-gradient(top, rgba(205, 141, 211, 0.86), #f5cff8);
+  background-image: -ms-linear-gradient(top, rgba(205, 141, 211, 0.86), #f5cff8);
+  background-image: -o-linear-gradient(top, rgba(205, 141, 211, 0.86), #DAA3DF);
+  background-image: -webkit-gradient(to bottom, rgba(205, 141, 211, 0.86), #DAA3DF);
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
+  color: #FFFFFF;
+  font-family: Helvetica;
+  font-size: 20px;
+  font-weight: 100;
+  margin: 5px;
+  padding: 20px;
+  -webkit-box-shadow: 1px 1px 41px 0 #000000;
+  -moz-box-shadow: 1px 1px 41px 0 #000000;
+  box-shadow: 1px 1px 41px 0 #000000;
+  text-shadow: 1px 1px 20px #000000;
+  border: solid #D14CCF 1px;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  text-align: center;  
+     
+
 }
+
+button:hover {
+    border: solid #ABB1B9 1px;
+    background: #D01ECD;
+    background-image: -webkit-linear-gradient(top, #D01ECD, #EB99EA);
+    background-image: -moz-linear-gradient(top, #D01ECD, #EB99EA);
+    background-image: -ms-linear-gradient(top, #cc42ca, #EB99EA);
+    background-image: -o-linear-gradient(top, #cc47ca, #EB99EA);
+    background-image: -webkit-gradient(to bottom, #c43ec1, #EB99EA);
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    text-decoration: none;
+ }
+
+
+.modal{
+  display: none; 
+  position:fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  text-align: left;
+  margin: auto;
+  width: 30%; /* Full width */
+  height: 10%; /* Full height */
+}
+
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefeb6;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.close{
+    background-color: rgb(238, 119, 119);
+    cursor: pointer;
+    color: black;
+}
+
+span{
+    font-size: 25px;
+}
+
+
 
