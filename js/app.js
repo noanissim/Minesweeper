@@ -200,7 +200,13 @@ function undoStep() {
 
     gIsUndoClicked = false
 }
+var gIsPhone = false
 
+function flagFromPhone() {
+    gIsPhone = true
+    cellMarked(i, j)
+
+}
 
 function createStep(i, j) {
     step = {
@@ -225,7 +231,11 @@ function createSteps(i, j) {
 
 
 function cellClicked(i, j) {
-
+    if (gIsPhone) {
+        cellMarked(i, j)
+        gIsPhone = false
+        return
+    }
     if (!gIsUndoClicked) createSteps(i, j)
 
     if (gIsPlayManual) {
