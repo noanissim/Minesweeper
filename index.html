@@ -8,12 +8,60 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body onload="init()">
-    <h1 class="neonText">Minesweeper Game!</h1>
+    <div class="head">
+        <h1 class="neonText" style="margin: auto; display: inline-block;">Minesweeper Game!</h1>
+        <button class="help" onclick="openHelp()" >Help</button>
+        <div class="modalHelp">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Rules</h3>
+            <h2>Goal of the Game</h2>
+            <p>In order to win, reveal all the safe squares on the board without exploding a mine. For a bigger challenge try to solve the puzzle as quickly as possible and beat record times.</p>
+            <h2>How to Play</h2>
+            <p>Tap on any unrevealed square to start the game. The timer starts once the first square has been revealed.
+                Numbers on the squares indicate the number of surrounding mines. Based on these numbers and how their 3×3 grids overlap, you can identify or suspect under which squares mines are hidden. Place a flag by right click on the mouse to mark it as dangerous. Reveal all safe squares without mines to win the game.</p>
+            <h2>Extra:</h2>
+            <p>Play Manually mode, the user first positions the mines (by clicking cells) and then plays. </p>
+            <p>7 BOOM! mode,clicking the button restarts the game and locate the MINES according to the “7 BOOM” principles </p>
+            <p>UNDO button,  each click on that button takes the player back by one step (can go all the way back to game start).</p>
+            <p>The UNDO button does not apply on the 7 BOOM mode and in the play manually mode</p>
+            <p>Safe click button, clicking this button will mark a random covered cell (for a few seconds) that is safe to click (does not contain a MINE).</p>
+            <p>Hints,when a cell (unrevealed) is clicked, the cell and its neighbors are revealed for a second, and the clicked hint disappears. </p>
+            <p>Lives, the player has 3 lives.When a MINE is clicked, there is an indication to the user that he clicked a mine. The LIVES counter decrease. The user can continue playing </p>
+            <p>The best score per level is kept in the Local Storage</p>
 
-    <div>
+            <button onclick="showRecords()">Show records</button>
+            <button onclick="openInput()">Add a record</button>
+         
+            <div class="showRecordsTable" >
+                <table border="1">
+                    <th>Name</th>
+                    <th>Level</th>
+                    <th>Time</th>
+                    <tr>
+                        <td class="nameLevel1"></td>
+                        <td>Level1- 4X4</td>
+                        <td class="recordLevel1"></td>
+                    </tr>
+                    <tr>
+                        <td class="nameLevel2"></td>
+                        <td>Level2- 8X8</td>
+                        <td  class="recordLevel2"></td>
+                    </tr>
+                    <tr>
+                        <td class="nameLevel3"></td>
+                        <td>Level3- 12X12</td>
+                        <td  class="recordLevel3"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <div style="margin-top: 15px; display: inline-block;">
         <button class="level1" onclick="changeLevel(this)">Easy</button>
         <button class="level2" onclick="changeLevel(this)">Middle</button>
-        <button class="level3" onclick="changeLevel(this)">Extreme</button>
+        <button class="level3" onclick="changeLevel(this)">Extreme</button> <br>
         <button class="manual" onclick="playManual(this)">Play Manually</button>
         <button class="boom" onclick="sevenBoom(this)">7 BOOM!</button>
         <button class="undo" onclick="undoStep()">UNDO</button>
@@ -33,19 +81,22 @@
     <h3 class="flag">Flags left: <span></span></h3>
     <h3 class="life" >Lives left: <span>❤️❤️❤️</span> </h3>
     <h3 class="record">The best record for this level is: <span></span></h3>
-    <div class="hints">
-        <h3 style="display: inline-block;">Hints left</h3>
-        <span class="hint" onclick="hintClicked(this)">💡</span>
-        <span class="hint" onclick="hintClicked(this)">💡</span>
-        <span class="hint" onclick="hintClicked(this)">💡</span>
+    <div style="display: inline;">
+        <div class="hints" style="display: inline; ">
+            <h3 style="display: inline-block;">Hints left</h3>
+            <span class="hint" onclick="hintClicked(this)">💡</span>
+            <span class="hint" onclick="hintClicked(this)">💡</span>
+            <span class="hint" onclick="hintClicked(this)">💡</span>
+        </div>
+    
+        <div class="safes" style="display: inline; margin-left: 60px;">
+            <h3 style="display: inline-block;">Safe Clicks</h3>
+            <span class="safe" onclick="safeClicked(this)">🆗</span>
+            <span class="safe" onclick="safeClicked(this)">🆗</span>
+            <span class="safe" onclick="safeClicked(this)">🆗</span>
+        </div>
     </div>
-
-    <div class="safes">
-        <h3 style="display: inline-block;">Safe Clicks</h3>
-        <span class="safe" onclick="safeClicked(this)">🆗</span>
-        <span class="safe" onclick="safeClicked(this)">🆗</span>
-        <span class="safe" onclick="safeClicked(this)">🆗</span>
-    </div>
+  
    
     <h4 class="hide">victory/you loose</h4>
     <button class="restart" onclick="restart()">Restart! <span>😁</span></button>

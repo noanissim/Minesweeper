@@ -108,10 +108,7 @@ function countMineMarkedCells(mat) {
             var elCell = mat[i][j]; //object
             if ((elCell.isMarked && elCell.isMine) || (elCell.isMine && gLife > 0)) {
                 count++
-                console.log({
-                    i,
-                    j
-                });
+
             }
         }
     }
@@ -145,7 +142,7 @@ function getSafePlace(mat) {
     }
     var randIdx = getRandomInt(0, empties.length)
 
-    console.log('empties[randIdx]', empties[randIdx]);
+    // console.log('empties[randIdx]', empties[randIdx]);
     return empties[randIdx]
 }
 
@@ -216,14 +213,13 @@ function randomBombs(board, size, numOfBombs, i, j) {
                         i: num1,
                         j: num2
                     })
-                    // board[num2][num1].isMine = true
                     //the dom in the render
                     countBombs++
                 }
             }
         }
     }
-    console.log(gRandomBombsLocation);
+    // console.log(gRandomBombsLocation);
     return countBombs
 }
 
@@ -343,7 +339,6 @@ function closeCell(mat, cellI, cellJ) {
 function startTimer() {
 
     gStartTime = Date.now()
-    // console.log('gStartTime', gStartTime);
     gInterval = setInterval(updateTime, 20)
 }
 
@@ -362,6 +357,8 @@ function updateTime() {
 }
 
 function stopTimer() {
+
+    clearInterval(gInterval)
     // if (gDiff < gCurrRecord && gIsVictory) {
     //     gCurrRecord = gDiff
     //     console.log('the best record!', gCurrRecord);
@@ -369,7 +366,6 @@ function stopTimer() {
     // }
     // document.querySelector('.btn-reset').classList.remove('hidden');
     // bestPlayer(gName, gCurrRecord)
-    clearInterval(gInterval)
 }
 
 
@@ -378,6 +374,7 @@ function checkRecord() {
         if (gDiff < gCurrRecordLevel1 && gIsVictory) {
             gCurrRecordLevel1 = gDiff
             localStorage.setItem('gCurrRecordLevel1', JSON.stringify(convertToTime(gCurrRecordLevel1)))
+            localStorage.setItem('gBestPlayerLevel1', gName)
             document.querySelector('.record span').innerText = localStorage.getItem('gCurrRecordLevel1');
         }
 
@@ -385,6 +382,7 @@ function checkRecord() {
         if (gDiff < gCurrRecordLevel2 && gIsVictory) {
             gCurrRecordLevel2 = gDiff
             localStorage.setItem('gCurrRecordLevel2', JSON.stringify(convertToTime(gCurrRecordLevel2)))
+            localStorage.setItem('gBestPlayerLevel2', gName)
             document.querySelector('.record span').innerText = localStorage.getItem('gCurrRecordLevel2');
 
         }
@@ -393,6 +391,7 @@ function checkRecord() {
         if (gDiff < gCurrRecordLevel3 && gIsVictory) {
             gCurrRecordLevel3 = gDiff
             localStorage.setItem('gCurrRecordLevel3', JSON.stringify(convertToTime(gCurrRecordLevel3)))
+            localStorage.setItem('gBestPlayerLevel3', gName)
             document.querySelector('.record span').innerText = localStorage.getItem('gCurrRecordLevel3')
 
         }
@@ -410,21 +409,6 @@ function convertToTime(recordTime) {
     if (minutes < 10) minutes = '0' + minutes
 
     var str = minutes + ':' + seconds + ':' + centi
-    console.log(str);
+    // console.log(str);
     return str
 }
-
-
-// function undoStep() {
-//     var lastStep = allSteps.pop() //the last step object
-//     //all the steps without the recent one
-//     gBoard = buildBoard()
-//     gBoard = locateBombs(gBoard)
-//     //all the steps are supposed to be eareased but the bombs stay
-//     gGame.shownCount = 0
-//     gGame.markedCount = 0
-//     for (var i = 0; i < allSteps.length; i++) {
-//         cellClicked(allSteps[i].i, allSteps[i].j)
-//     }
-//     renderBoard(gBoard, '.board-container')
-// }

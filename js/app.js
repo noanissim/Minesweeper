@@ -20,12 +20,16 @@ var gGame = {
 
 var gClicksTotal
 var gIsVictory
+var gName
 
 var gStartTime
 var gDiff
 var gCurrRecordLevel1 = Infinity
 var gCurrRecordLevel2 = Infinity
 var gCurrRecordLevel3 = Infinity
+var gBestPlayerLevel1 = null
+var gBestPlayerLevel2 = null
+var gBestPlayerLevel3 = null
 var gInterval
 var gLife
 var gHearts
@@ -51,7 +55,6 @@ var gIsUndoClicked
 //happens only once!!! in the beggining
 if (Object.keys(localStorage).indexOf('gCurrRecordLevel1') === -1) {
     //checking if there was no play yet, if so- setting record for this level
-    // localStorage.setItem('gCurrRecordLevel1', JSON.stringify(convertToTime(gCurrRecordLevel1)))
     localStorage.setItem('gCurrRecordLevel1', '00:00:00')
 }
 if (Object.keys(localStorage).indexOf('gCurrRecordLevel2') === -1) {
@@ -60,12 +63,20 @@ if (Object.keys(localStorage).indexOf('gCurrRecordLevel2') === -1) {
 if (Object.keys(localStorage).indexOf('gCurrRecordLevel3') === -1) {
     localStorage.setItem('gCurrRecordLevel3', '00:00:00')
 }
+if (Object.keys(localStorage).indexOf('gBestPlayerLevel1') === -1) {
+    localStorage.setItem('gBestPlayerLevel1', 'null')
+}
+if (Object.keys(localStorage).indexOf('gBestPlayerLevel2') === -1) {
+    localStorage.setItem('gBestPlayerLevel2', 'null')
+}
+if (Object.keys(localStorage).indexOf('gBestPlayerLevel3') === -1) {
+    localStorage.setItem('gBestPlayerLevel3', 'null')
+}
 
 
 function init() {
     //model
     gBoard = buildBoard()
-    // console.table(gBoard)
     //dom
     renderBoard(gBoard, '.board-container')
 
@@ -133,7 +144,7 @@ function buildBoard() {
 function playManual(elBtn) {
     restart()
     gIsPlayManual = true
-    elBtn.innerText = `LC to pose the ${gLevel.MINES} bombs`
+    elBtn.innerText = `Click to pose the ${gLevel.MINES} bombs`
 }
 
 
@@ -143,13 +154,8 @@ function sevenBoom(elBtn) {
 }
 
 function undoStep() {
-    // debugger
     gIsUndoClicked = true
     var lastStep = allSteps.pop() //the last step object
-    console.log('lastStep', lastStep);
-
-    //checking if the last step was mine/safe/hint
-
 
     //all the steps without the recent one
     gBoard = buildBoard()
@@ -166,10 +172,11 @@ function undoStep() {
         }
         gHintsLeft = allSteps[x].hints
         gLife = allSteps[x].life
-        console.log('gLife', gLife);
         gSafeLeft = allSteps[x].safe
     }
     renderBoard(gBoard, '.board-container')
+
+    //checking if the last step was mine/safe/hint
     if (lastStep.content.isMine) gHearts = renderEmojies(gLife, '❤️')
     else if (lastStep.hints < allSteps[x - 1].hints) {
         var allHints = document.querySelectorAll('.hint')
@@ -194,6 +201,7 @@ function undoStep() {
     gIsUndoClicked = false
 }
 
+
 function createStep(i, j) {
     step = {
         coord: {
@@ -209,32 +217,28 @@ function createStep(i, j) {
     return step
 }
 
+
 function createSteps(i, j) {
     stepIdx++
     allSteps.push(createStep(i, j))
-    console.log(allSteps);
 }
+
 
 function cellClicked(i, j) {
 
-
     if (!gIsUndoClicked) createSteps(i, j)
-
 
     if (gIsPlayManual) {
         gWasPlayManual = true
         if (countBombManualPlace === 0) {
             gBoard = buildBoard()
-            console.log(gBoard);
         }
         if (countBombManualPlace < gLevel.MINES) {
-            // debugger
             //only when button 'play manually' is hitten
             document.querySelector('.flag span').innerText = gLevel.MINES - countBombManualPlace - 1;
             changBgcToCell(i, j, 'rgb(235, 150, 54)')
             gBoard[i][j].isMine = true
             countBombManualPlace++
-            console.log(countBombManualPlace);
             gGame.shownCount = 0
         }
         if (countBombManualPlace === gLevel.MINES) {
@@ -259,33 +263,22 @@ function cellClicked(i, j) {
         gWasPlayBoom = true
         if (countBombBoomPlace === 0) {
             gBoard = buildBoardBoom()
-            console.log(gBoard);
             countBombBoomPlace++
         } else {
             setMinesNegsCount(gBoard)
             renderBoard(gBoard, '.board-container')
             startTimer()
             gIsPlayBoom = false
-
         }
-
     }
 
-    if (gBoard[i][j].isMarked && !gIsUndoClicked) {
-        return
-    }
-
-
+    if (gBoard[i][j].isMarked && !gIsUndoClicked) return
 
     if (gIsHintRevealed) {
         gBoard[i][j].isShown = false
         if (gBoard[i][j].isMine) gLife++
-
-        //reveal
-        expandShown(gBoard, i, j)
-
-        setTimeout(function () {
-            //close
+        expandShown(gBoard, i, j) //reveal
+        setTimeout(function () { //close
             closeShown(gBoard, i, j)
             gBoard[i][j].isShown = false
             gIsHintRevealed = false
@@ -298,7 +291,6 @@ function cellClicked(i, j) {
 
 
     if (gGame.shownCount === 1 && gGame.markedCount === 0 && !gIsUndoClicked) {
-        console.log('first click');
 
         if (!gWasPlayManual && !gWasPlayBoom) {
             randomBombs(gBoard, gLevel.SIZE, gLevel.MINES, i, j)
@@ -310,14 +302,14 @@ function cellClicked(i, j) {
     }
 
     renderBoard(gBoard, '.board-container')
-    //the model td content will be empty, the dom td content is filled
-
 
     if (gBoard[i][j].minesAroundCount === 0 && gBoard[i][j].isShown) {
         expandShownRecursion(gBoard, i, j)
     }
+    document.querySelector('.restart span').innerText = (gLife === 3) ? '😁' : '😵'
 
     if (gBoard[i][j].isMine && gLevel.SIZE > 5) {
+
         if (gLife > 1) {
             gLife--
             gHearts = renderEmojies(gLife, '❤️')
@@ -328,6 +320,7 @@ function cellClicked(i, j) {
             loseGame()
         }
 
+
     } else if (gBoard[i][j].isMine && !gIsHintRevealed && !gIsPlayManual) {
         gIsVictory = false
         loseGame()
@@ -337,9 +330,6 @@ function cellClicked(i, j) {
 
     checkGameOver()
 }
-
-
-
 
 
 function handleRightClick(elCell, i, j, ev) {
@@ -356,9 +346,7 @@ function cellMarked(i, j) {
 
     if (!gIsUndoClicked) createSteps(i, j)
 
-    // gGame.markedCount++
     if (gGame.shownCount === 0 && gGame.markedCount === 1) {
-        console.log('first right click');
         startTimer()
     }
 
@@ -373,7 +361,6 @@ function cellMarked(i, j) {
 
     document.querySelector('.flag span').innerText = gLevel.MINES - gGame.markedCount;
     checkGameOver()
-    // console.log('gGame.markedCount', gGame.markedCount);
     renderBoard(gBoard, '.board-container')
 }
 
@@ -395,7 +382,6 @@ function checkGameOver() {
 function winGame() {
     stopTimer()
     checkRecord()
-    console.log('success! game over! you win!');
     document.querySelector('h4').classList.remove('hide');
     document.querySelector('h4').innerText = 'You Win!';
     gGame.isOn = false
@@ -410,22 +396,44 @@ function openModal() {
     document.querySelector('.modal-content .status span').innerText = document.querySelector('h4').innerText;
 }
 
+function openHelp() {
+    document.querySelector('.modalHelp').style.display = 'block'
+
+}
+
 
 function closeModal() {
-    document.querySelector('.modal').style.display = 'none'
+    document.querySelector('.showRecordsTable').style.display = 'none'
+    document.querySelector('.modal, .modalHelp').style.display = 'none'
+}
+
+function showRecords() {
+    document.querySelector('.showRecordsTable').style.display = 'block';
+
+    document.querySelector('.showRecordsTable .nameLevel1').innerText = localStorage.getItem('gBestPlayerLevel1')
+    document.querySelector('.showRecordsTable .recordLevel1').innerText = localStorage.getItem('gCurrRecordLevel1')
+
+    document.querySelector('.showRecordsTable .nameLevel2').innerText = localStorage.getItem('gBestPlayerLevel2')
+    document.querySelector('.showRecordsTable .recordLevel2').innerText = localStorage.getItem('gCurrRecordLevel2')
+
+    document.querySelector('.showRecordsTable .nameLevel3').innerText = localStorage.getItem('gBestPlayerLevel3')
+    document.querySelector('.showRecordsTable .recordLevel3').innerText = localStorage.getItem('gCurrRecordLevel3')
+}
+
+function openInput() {
+    gName = prompt('Enter your name')
+    closeModal()
 }
 
 
 function loseGame() {
     revealAllBombs(gBoard)
     stopTimer()
-    console.log('You loose!!!');
     document.querySelector('h4').classList.remove('hide');
     document.querySelector('h4').innerText = 'You Loose!';
     gGame.isOn = false
     document.querySelector('.restart span').innerText = '😭'
     openModal()
-    // document.querySelector('.restart').classList.remove('hide');
 }
 
 
@@ -433,7 +441,6 @@ function hintClicked(elHint) {
     if (gGame.shownCount < 1) return
     gHintsLeft--
     gIsHintRevealed = true
-    console.log(elHint);
     setTimeout(function () {
         elHint.style.display = 'none'
     }, 2000)
@@ -444,14 +451,12 @@ function safeClicked(elSafe) {
     if (gGame.shownCount < 1) return
     gSafeLeft--
     gIsSafeRevealed = true
-    console.log(elSafe);
     setTimeout(function () {
         elSafe.style.display = 'none'
     }, 2000)
 
     var coord = getSafePlace(gBoard)
     document.querySelector(`.cell-${coord.i}-${coord.j}`).style.backgroundColor = '#FCFFA6'
-    console.log(document.querySelector(`.cell-${coord.i}-${coord.j}`));
 
     setTimeout(function () {
         //unmark the cell
@@ -467,16 +472,13 @@ function setMinesNegsCount(board) {
             //model
             board[i][j].minesAroundCount = countBombsNegs
             //dom
-            // if (countBombsNegs > 0 || board[i][j].isMine === false) renderCell(i, j, countBombsNegs)
         }
     }
 }
 
 
 function changeLevel(elBtn) {
-    // console.log(elBtn);
     var level = elBtn.innerText
-    // console.log(level);
     if (level === 'Middle') {
         gLevel.SIZE = 8
         gLevel.MINES = 12
