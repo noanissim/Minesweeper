@@ -414,7 +414,8 @@ function openHelp() {
 
 function closeModal() {
     document.querySelector('.showRecordsTable').style.display = 'none'
-    document.querySelector('.modal, .modalHelp').style.display = 'none'
+    document.querySelector('.modalHelp').style.display = 'none'
+    document.querySelector('.modal').style.display = 'none'
 }
 
 function showRecords() {
