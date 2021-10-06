@@ -19,7 +19,6 @@ var gGame = {
 }
 
 var gClicksTotal
-var gFlagsTotal
 var gIsVictory
 
 var gStartTime
@@ -39,17 +38,13 @@ var gWasPlayBoom
 var countBombManualPlace = 0
 var countBombBoomPlace = 0
 
-var allSteps = []
-var stepIdx = -1;
-var step = {
-    coord: {
-        i: 0,
-        j: 0
-    },
-    content: '',
-    isMine: false,
-
-}
+var allSteps
+var stepIdx
+var step
+var gHintsLeft
+var gSafeLeft
+var gRandomBombsLocation
+var gIsUndoClicked
 
 
 
@@ -80,7 +75,7 @@ function init() {
     gGame.secsPassed = 0
 
     gClicksTotal = 0
-    gFlagsTotal = 0
+    gGame.markedCount = 0
     gIsVictory = false
     gLife = 3
     gHearts = '❤️❤️❤️'
@@ -93,15 +88,12 @@ function init() {
 
     allSteps = []
     stepIdx = -1;
-    step = {
-        coord: {
-            i: 0,
-            j: 0
-        },
-        content: '',
-        isMine: false,
+    step = {}
+    gHintsLeft = 3
+    gSafeLeft = 3
+    gRandomBombsLocation = []
+    gIsUndoClicked = false
 
-    }
 
 
     document.querySelector('.flag span').innerText = gLevel.MINES;
@@ -109,12 +101,12 @@ function init() {
     document.querySelector('.timer').innerText = `00:00:00`
     document.querySelector('.life span').innerText = gHearts;
     document.querySelector('.restart span').innerText = '😁'
-    document.querySelector('.hint .hint1').innerText = '💡';
-    document.querySelector('.hint .hint2').innerText = '💡';
-    document.querySelector('.hint .hint3').innerText = '💡';
-    document.querySelector('.safe .safe1').innerText = '🆗';
-    document.querySelector('.safe .safe2').innerText = '🆗';
-    document.querySelector('.safe .safe3').innerText = '🆗';
+    document.querySelector('.hint').innerText = '💡';
+    document.querySelector('.hint').innerText = '💡';
+    document.querySelector('.hint').innerText = '💡';
+    document.querySelector('.safe').innerText = '🆗';
+    document.querySelector('.safe').innerText = '🆗';
+    document.querySelector('.safe').innerText = '🆗';
     document.querySelector('.modal').style.display = 'none'
     document.querySelector('.manual').innerText = 'Play Manually';
 }
@@ -150,10 +142,84 @@ function sevenBoom(elBtn) {
     gIsPlayBoom = true
 }
 
+function undoStep() {
+    // debugger
+    gIsUndoClicked = true
+    var lastStep = allSteps.pop() //the last step object
+    console.log('lastStep', lastStep);
 
-function cellClicked(elCell, i, j, ev) {
+    //checking if the last step was mine/safe/hint
 
-    // console.log(elCell);
+
+    //all the steps without the recent one
+    gBoard = buildBoard()
+    gBoard = locateBombs(gBoard)
+    //all the steps are supposed to be eareased but the bombs stay
+    gGame.shownCount = 0
+    gGame.markedCount = 0
+    setMinesNegsCount(gBoard)
+    for (var x = 0; x < allSteps.length; x++) {
+        if (allSteps[x].content.isMarked) {
+            cellMarked(allSteps[x].coord.i, allSteps[x].coord.j)
+        } else {
+            cellClicked(allSteps[x].coord.i, allSteps[x].coord.j)
+        }
+        gHintsLeft = allSteps[x].hints
+        gLife = allSteps[x].life
+        console.log('gLife', gLife);
+        gSafeLeft = allSteps[x].safe
+    }
+    renderBoard(gBoard, '.board-container')
+    if (lastStep.content.isMine) gHearts = renderEmojies(gLife, '❤️')
+    else if (lastStep.hints < allSteps[x - 1].hints) {
+        var allHints = document.querySelectorAll('.hint')
+        for (var i = 0; i < allHints.length; i++) {
+            if (allHints[i].style.display = 'none') {
+                allHints[i].style.display = 'inline-block'
+                break
+            }
+        }
+    }
+    if (lastStep.safe < allSteps[x - 1].safe) {
+        var allSafe = document.querySelectorAll('.safe')
+        for (var i = 0; i < allSafe.length; i++) {
+            if (allSafe[i].style.display = 'none') {
+                allSafe[i].style.display = 'inline-block'
+                break
+            }
+        }
+    }
+
+
+    gIsUndoClicked = false
+}
+
+function createStep(i, j) {
+    step = {
+        coord: {
+            i: i,
+            j: j
+        },
+        content: gBoard[i][j],
+        hints: gHintsLeft,
+        life: gLife,
+        safe: gSafeLeft
+
+    }
+    return step
+}
+
+function createSteps(i, j) {
+    stepIdx++
+    allSteps.push(createStep(i, j))
+    console.log(allSteps);
+}
+
+function cellClicked(i, j) {
+
+
+    if (!gIsUndoClicked) createSteps(i, j)
+
 
     if (gIsPlayManual) {
         gWasPlayManual = true
@@ -164,18 +230,25 @@ function cellClicked(elCell, i, j, ev) {
         if (countBombManualPlace < gLevel.MINES) {
             // debugger
             //only when button 'play manually' is hitten
+            document.querySelector('.flag span').innerText = gLevel.MINES - countBombManualPlace - 1;
+            changBgcToCell(i, j, 'rgb(235, 150, 54)')
             gBoard[i][j].isMine = true
             countBombManualPlace++
             console.log(countBombManualPlace);
             gGame.shownCount = 0
         }
         if (countBombManualPlace === gLevel.MINES) {
-            setMinesNegsCount(gBoard)
-            renderBoard(gBoard, '.board-container')
-            startTimer()
-            gIsPlayManual = false
-            countBombManualPlace = 0
-            return
+            changBgcToCell(i, j, 'rgb(235, 150, 54)')
+            setTimeout(function () {
+                setMinesNegsCount(gBoard)
+                renderBoard(gBoard, '.board-container')
+                startTimer()
+                gIsPlayManual = false
+                countBombManualPlace = 0
+                document.querySelector('.flag span').innerText = gLevel.MINES
+                return
+            }, 200)
+
         }
 
     }
@@ -198,20 +271,22 @@ function cellClicked(elCell, i, j, ev) {
 
     }
 
-    if (gBoard[i][j].isMarked) {
+    if (gBoard[i][j].isMarked && !gIsUndoClicked) {
         return
     }
 
+
+
     if (gIsHintRevealed) {
-        gBoard[i][j].isMarked = false
+        gBoard[i][j].isShown = false
         if (gBoard[i][j].isMine) gLife++
 
         //reveal
-        expandShown(gBoard, elCell, i, j)
+        expandShown(gBoard, i, j)
 
         setTimeout(function () {
             //close
-            closeShown(gBoard, elCell, i, j)
+            closeShown(gBoard, i, j)
             gBoard[i][j].isShown = false
             gIsHintRevealed = false
         }, 1000)
@@ -222,7 +297,7 @@ function cellClicked(elCell, i, j, ev) {
     gClicksTotal++
 
 
-    if (gGame.shownCount === 1 && gGame.markedCount === 0) {
+    if (gGame.shownCount === 1 && gGame.markedCount === 0 && !gIsUndoClicked) {
         console.log('first click');
 
         if (!gWasPlayManual && !gWasPlayBoom) {
@@ -239,16 +314,13 @@ function cellClicked(elCell, i, j, ev) {
 
 
     if (gBoard[i][j].minesAroundCount === 0 && gBoard[i][j].isShown) {
-        expandShownRecursion(gBoard, elCell, i, j)
+        expandShownRecursion(gBoard, i, j)
     }
 
     if (gBoard[i][j].isMine && gLevel.SIZE > 5) {
-        if (gLife === 3) {
+        if (gLife > 1) {
             gLife--
-            gHearts = '❤️❤️'
-        } else if (gLife === 2) {
-            gLife--
-            gHearts = '❤️'
+            gHearts = renderEmojies(gLife, '❤️')
         } else if (gLife === 1) {
             gLife--
             gHearts = ''
@@ -268,17 +340,23 @@ function cellClicked(elCell, i, j, ev) {
 
 
 
+
+
 function handleRightClick(elCell, i, j, ev) {
     ev.preventDefault()
-    cellMarked(elCell, i, j)
+    cellMarked(i, j)
 }
 
 
-function cellMarked(elCell, i, j) {
+function cellMarked(i, j) {
 
-    if (gFlagsTotal === gLevel.MINES) return
+    if (gGame.markedCount === gLevel.MINES) return
 
-    gGame.markedCount++
+    if (gBoard[i][j].isShown && !gIsUndoClicked) return
+
+    if (!gIsUndoClicked) createSteps(i, j)
+
+    // gGame.markedCount++
     if (gGame.shownCount === 0 && gGame.markedCount === 1) {
         console.log('first right click');
         startTimer()
@@ -286,14 +364,16 @@ function cellMarked(elCell, i, j) {
 
     if (!gBoard[i][j].isMarked) {
         gBoard[i][j].isMarked = true
-        gFlagsTotal++
+        gGame.markedCount++
     } else {
         gBoard[i][j].isMarked = false
-        gFlagsTotal--
+        gGame.markedCount--
     }
-    document.querySelector('.flag span').innerText = gLevel.MINES - gFlagsTotal;
+
+
+    document.querySelector('.flag span').innerText = gLevel.MINES - gGame.markedCount;
     checkGameOver()
-    // console.log('gFlagsTotal', gFlagsTotal);
+    // console.log('gGame.markedCount', gGame.markedCount);
     renderBoard(gBoard, '.board-container')
 }
 
@@ -350,22 +430,23 @@ function loseGame() {
 
 
 function hintClicked(elHint) {
+    if (gGame.shownCount < 1) return
+    gHintsLeft--
     gIsHintRevealed = true
     console.log(elHint);
-    // elHint.innerText = ''
-    elHint.innerText = '✨'
     setTimeout(function () {
-        elHint.innerText = ''
-    }, 5000)
+        elHint.style.display = 'none'
+    }, 2000)
 }
 
 
 function safeClicked(elSafe) {
+    if (gGame.shownCount < 1) return
+    gSafeLeft--
     gIsSafeRevealed = true
     console.log(elSafe);
-    elSafe.innerText = '✨'
     setTimeout(function () {
-        elSafe.innerText = ''
+        elSafe.style.display = 'none'
     }, 2000)
 
     var coord = getSafePlace(gBoard)

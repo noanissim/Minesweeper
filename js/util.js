@@ -30,7 +30,7 @@ function renderBoard(mat, selector) {
                 cellContent = FLAG
             }
 
-            strHTML += `<td oncontextmenu="handleRightClick(this,${i},${j},event)" class="${className} " onclick="cellClicked(this,${i},${j},event)" style="width:${360/mat.length}px; height:${360/mat.length}px; "> ${cellContent}   </td>`
+            strHTML += `<td oncontextmenu="handleRightClick(this,${i},${j},event)" class="${className} " onclick="cellClicked(${i},${j})" style="width:${360/mat.length}px; height:${360/mat.length}px; "> ${cellContent}   </td>`
         }
         strHTML += '</tr>'
     }
@@ -46,6 +46,14 @@ function renderCell(i, j, value) {
     // Select the elCell and set the value
     var elCell = document.querySelector(`.cell-${i}-${j}`);
     elCell.innerHTML = value;
+}
+
+function renderEmojies(number, emoji) {
+    var str = ''
+    for (var i = 0; i < number; i++) {
+        str += emoji
+    }
+    return str
 }
 
 
@@ -192,6 +200,7 @@ function countNeighbors(cellI, cellJ, mat) {
 }
 
 
+
 function randomBombs(board, size, numOfBombs, i, j) {
     var countBombs = 0
     while (countBombs < numOfBombs) {
@@ -203,6 +212,10 @@ function randomBombs(board, size, numOfBombs, i, j) {
                 if (!board[num1][num2].isMine) {
                     isValid = true
                     board[num1][num2].isMine = true
+                    gRandomBombsLocation.push({
+                        i: num1,
+                        j: num2
+                    })
                     // board[num2][num1].isMine = true
                     //the dom in the render
                     countBombs++
@@ -210,20 +223,42 @@ function randomBombs(board, size, numOfBombs, i, j) {
             }
         }
     }
+    console.log(gRandomBombsLocation);
     return countBombs
 }
 
 
-function expandShown(mat, elCell, cellI, cellJ) {
+function locateBombs(board) {
 
+    for (var i = 0; i < gRandomBombsLocation.length; i++) {
+        var coordI = gRandomBombsLocation[i].i
+        var coordJ = gRandomBombsLocation[i].j
+        board[coordI][coordJ].isMine = true
+    }
+    return board
+}
+
+var gShowFromExpend
+
+function expandShown(mat, cellI, cellJ) {
+
+    gShowFromExpend = []
     for (var i = cellI - 1; i <= cellI + 1; i++) {
         if (i < 0 || i >= mat.length) continue;
         for (var j = cellJ - 1; j <= cellJ + 1; j++) {
             if (j < 0 || j >= mat[i].length) continue;
             if (i === cellI && j === cellJ) continue;
-            gBoard[i][j].isShown = true
-            gGame.shownCount++
-            gClicksTotal++
+            if (!gBoard[i][j].isShown) {
+                //array of the cells that need to be closed
+                gShowFromExpend.push({
+                    i: i,
+                    j: j
+                })
+                gBoard[i][j].isShown = true
+                gGame.shownCount++
+                gClicksTotal++
+            }
+
             renderBoard(gBoard, '.board-container')
         }
     }
@@ -233,7 +268,7 @@ function expandShown(mat, elCell, cellI, cellJ) {
 
 
 //***************************RECURSION*********************************** */
-function expandShownRecursion(mat, elCell, cellI, cellJ) {
+function expandShownRecursion(mat, cellI, cellJ) {
 
     var coordI
     var coordJ
@@ -257,7 +292,7 @@ function expandShownRecursion(mat, elCell, cellI, cellJ) {
 
                     if (mat[coordI][coordJ].minesAroundCount === 0) {
                         //its an empty tile-i call the recursion
-                        expandShownRecursion(mat, elCell, coordI, coordJ)
+                        expandShownRecursion(mat, coordI, coordJ)
                     }
                 }
             }
@@ -267,20 +302,38 @@ function expandShownRecursion(mat, elCell, cellI, cellJ) {
 
 
 
-function closeShown(mat, elCell, cellI, cellJ) {
+function closeShown(mat, cellI, cellJ) {
 
-    for (var i = cellI - 1; i <= cellI + 1; i++) {
-        if (i < 0 || i >= mat.length) continue;
-        for (var j = cellJ - 1; j <= cellJ + 1; j++) {
-            if (j < 0 || j >= mat[i].length) continue;
-            if (i === cellI && j === cellJ) continue;
-            gBoard[i][j].isShown = false
-            gGame.shownCount--
-            gClicksTotal--
-            renderBoard(gBoard, '.board-container')
-        }
+    for (var x = 0; x < gShowFromExpend.length; x++) {
+        var coordI = gShowFromExpend[x].i
+        var coordJ = gShowFromExpend[x].j
+        mat[coordI][coordJ].isShown = false
+        gGame.shownCount--
+        gClicksTotal--
+        renderBoard(gBoard, '.board-container')
     }
+
+    return gGame.shownCount - 1
+    // for (var i = cellI - 1; i <= cellI + 1; i++) {
+    //     if (i < 0 || i >= mat.length) continue;
+    //     for (var j = cellJ - 1; j <= cellJ + 1; j++) {
+    //         if (j < 0 || j >= mat[i].length) continue;
+    //         if (i === cellI && j === cellJ) continue;
+    //         gBoard[i][j].isShown = false
+    //         gGame.shownCount--
+    //         gClicksTotal--
+    //         renderBoard(gBoard, '.board-container')
+    //     }
+    // }
     // return gGame.shownCount - 1
+}
+
+
+function closeCell(mat, cellI, cellJ) {
+    gBoard[cellI][cellJ].isShown = false
+    gGame.shownCount--
+    gClicksTotal--
+    renderBoard(gBoard, '.board-container')
 }
 
 
@@ -360,3 +413,18 @@ function convertToTime(recordTime) {
     console.log(str);
     return str
 }
+
+
+// function undoStep() {
+//     var lastStep = allSteps.pop() //the last step object
+//     //all the steps without the recent one
+//     gBoard = buildBoard()
+//     gBoard = locateBombs(gBoard)
+//     //all the steps are supposed to be eareased but the bombs stay
+//     gGame.shownCount = 0
+//     gGame.markedCount = 0
+//     for (var i = 0; i < allSteps.length; i++) {
+//         cellClicked(allSteps[i].i, allSteps[i].j)
+//     }
+//     renderBoard(gBoard, '.board-container')
+// }
